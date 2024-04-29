@@ -26,6 +26,9 @@
                     </tr>
                 </thead>
                 <tbody>
+              
+                        
+                  
                     @foreach ($acceptedFriendRequest as $request)
                         <tr>
                             <td>{{ $request->receiver_email }}</td>

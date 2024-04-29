@@ -65,7 +65,7 @@ Route::get('/chat', [ChatController::class, 'index']) ->name('chat');
    
 
 Route::post('/send-message', [ChatController::class, 'sendMessage'])->name('send.message');
-Route::get('/fetch-messages', [ChatController::class, 'FetchMessage'])->name('fetch.messages');
+Route::post('/fetch-messages', [ChatController::class, 'FetchMessage'])->name('fetch.messages');
 
 
 

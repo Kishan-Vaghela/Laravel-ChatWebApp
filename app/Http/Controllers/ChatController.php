@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 
 use App\Models\Message;
+use Illuminate\Contracts\Session\Session;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -16,14 +17,26 @@ class ChatController extends Controller
      *
      * @return View
      */
-    public function index()
+    public function index(Request $request)
     {
+        $receiverEmail = $request->input('receiver_email');
+        // dd($receiverEmail);
+        $request->session()->put('receiverEmail', $receiverEmail);
+        // dd($request);
+
+
         if (!Auth::check()) {
             return redirect()->route('login');
         }
 
-        $messages = Message::orderBy('created_at', 'asc')->get();
-        
+        $messages = Message::where('sender_email', Auth::user()->email)
+            ->where('receiver_email', $receiverEmail)
+            ->orWhere('sender_email', $receiverEmail)
+            ->where('receiver_email', Auth::user()->email)
+            ->orderBy('created_at', 'asc')
+            ->get();
+
+
         // dd($messages);
 
         return view('FriendRequest.chat', compact('messages'));
@@ -38,7 +51,7 @@ class ChatController extends Controller
     // ChatController.php
     public function sendMessage(Request $request)
     {
-        
+        // dd( $request->session()->get('receiverEmail'));
         $request->validate([
             'message' => 'required|string',
             'receiver_email' => 'required|email|exists:users,email',
@@ -57,16 +70,28 @@ class ChatController extends Controller
         return response()->json(['status' => 'success', 'message' => $message]);
     }
 
-
-
-    public function FetchMessage(){
+    public function FetchMessage(Request $request)
+    {
+        $receiverEmail = $request->session()->get('receiverEmail');
 
         if (!Auth::check()) {
             return redirect()->route('login');
         }
 
-        $messages = Message::orderBy('created_at', 'asc')->get();
-        // dd($messages);,
-        return response()->json(['status'=> 'success','message'=> $messages]);
+        $userEmail = Auth::user()->email;
+
+        $messages = Message::where('sender_email', $userEmail)
+            ->where('receiver_email', $receiverEmail)
+            ->orWhere('sender_email', $receiverEmail)
+            ->where('receiver_email', $userEmail)
+            ->orderBy('created_at', 'asc')
+            ->get();
+
+        // dd($messages);
+
+        return response()->json(['status' => 'success', 'message' => $messages]);
     }
+
+
+
 }

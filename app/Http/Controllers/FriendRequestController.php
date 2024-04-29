@@ -103,13 +103,16 @@ class FriendRequestController extends Controller
 
 
 
-    public function DisplayAcceptedFriend()
-    {
+    public function DisplayAcceptedFriend(Request $request)
+    {   
+        Auth::user()->email;
+        
 
-        $acceptedFriendRequest = FriendRequest::where('status', '=', 'accepted')->get();
+        $acceptedFriendRequest = FriendRequest::where('status', '=', 'accepted')
+        ->get();
         // dd($acceptedFriendRequest);
         return view('FriendRequest.acceptedrequest', compact('acceptedFriendRequest'));
     }
 
-    
+
 }

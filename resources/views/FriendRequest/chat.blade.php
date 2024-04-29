@@ -10,85 +10,94 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     <style>
-        /* Base styles */
-        body {
-            font-family: Arial, sans-serif;
+        /* Reset default margin and padding */
+        * {
             margin: 0;
             padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
         }
 
         .container {
-            max-width: 600px;
+            max-width: 800px;
             margin: 0 auto;
             padding: 20px;
         }
 
-        /* Chat container */
         .chat {
-            border: 1px solid #ccc;
-            border-radius: 8px;
             background-color: #fff;
+            border-radius: 8px;
             padding: 10px;
-            height: 400px;
-            overflow-y: auto;
+            max-height: 400px;
+            overflow-y: scroll;
         }
 
-        /* Chat message styling */
         .chat-message {
+            margin: 5px 0;
             padding: 8px 12px;
-            margin-bottom: 8px;
             border-radius: 10px;
-            word-wrap: break-word;
+            max-width: 70%;
         }
 
-        .chat-message.sent {
-            background-color: #DCF8C6;
+        .sent {
+            background-color: #dcf8c6;
+            align-self: flex-start;
+            margin-left: 20px;
+        }
+
+        .received {
+            background-color: #e5e5ea;
             align-self: flex-end;
+            margin-right: 20px;
         }
 
-        .chat-message.received {
-            background-color: #ECE5DD;
+        .input-group {
+            margin-top: 20px;
         }
 
-        /* Chat input and send button */
         .chat-input {
-            width: calc(100% - 60px);
-            padding: 10px;
-            border: 1px solid #ccc;
             border-radius: 20px;
-            box-sizing: border-box;
         }
 
         .send-btn {
-            width: 50px;
-            padding: 10px;
+            border-radius: 20px;
             margin-left: 10px;
-            border: none;
-            border-radius: 50%;
-            background-color: #007bff;
-            color: #fff;
-            cursor: pointer;
+        }
+
+        @media screen and (max-width: 600px) {
+            .container {
+                padding: 10px;
+            }
+
+            .chat-message {
+                max-width: 60%;
+            }
         }
     </style>
 </head>
 
 <body>
-    <!-- Include your header/navbar here -->
+    @include('header.navbar')
+    <br>
     <div class="container">
         <div class="chat" id="chat-messages">
             @foreach ($messages as $message)
-                <div class="message">
+                <div class="chat-message {{ $message->sender_email === Auth::user()->email ? 'sent' : 'received' }}">
                     {{ $message->message }}
                 </div>
             @endforeach
         </div>
-        <form id="chat-form">
+        <form id="chat-form" action="javascript:void(0);" method="POST">
             @csrf
             <div class="input-group">
                 <input type="hidden" name="receiver_email" value="{{ request()->query('receiver_email') }}">
                 <input type="text" class="form-control chat-input" id="message" name="message"
                     placeholder="Type your message...">
-                <button type="submit" class="btn btn-primary send-btn">Send</button>
+                <button id="send-button" type="submit" class="btn btn-primary send-btn">Send</button>
             </div>
         </form>
     </div>
@@ -96,34 +105,36 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
         $(document).ready(function() {
-            var user_email = "{{ Auth::user()->email }}";
-
             function fetchMessages() {
+                var receiverEmail = $('input[name="receiver_email"]').val();
                 $.ajax({
                     url: '/fetch-messages',
-                    method: 'GET',
+                    method: 'POST',
+                    data: {
+                        receiver_email: receiverEmail,
+                        _token: $('meta[name="csrf-token"]').attr('content'),
+                    },
                     success: function(response) {
                         $('#chat-messages').empty();
-
-                        if (response && response.messages) {
-                            response.messages.forEach(function(message) {
-                                var messageClass = (message.sender_email === user_email ? 'sent' : 'received');
-                                $('#chat-messages').append('<div class="chat-message ' + messageClass + '">' + message.message + '</div>');
+                        if (response.status === 'success' && Array.isArray(response.message)) {
+                            response.message.forEach(function(message) {
+                                let messageElement = $('<div class="chat-message"></div>');
+                                if ('{{ Auth::user()->email }}' === message.sender_email) {
+                                    messageElement.addClass('sent');
+                                } else {
+                                    messageElement.addClass('received');
+                                }
+                                messageElement.text(message.message);
+                                $('#chat-messages').append(messageElement);
                             });
-
                             $('#chat-messages').scrollTop($('#chat-messages')[0].scrollHeight);
-                        } else {
-                            alert("Failed to fetch messages. Please try again later.");
                         }
                     },
                     error: function(xhr, status, error) {
-                        console.error(error);
+                        console.error('Error:', error);
                     }
                 });
             }
-
-            // Fetch messages on page load
-            fetchMessages();
 
             $('#chat-form').submit(function(e) {
                 e.preventDefault();
@@ -140,16 +151,23 @@
                         _token: csrfToken
                     },
                     success: function(response) {
-                        // If message sent successfully, fetch and display messages again
-                        fetchMessages();
-                        // Clear the message input field
-                        $('#message').val('');
+                        console.log(response.message);
+                        if (response && response.message) {
+                            $('#chat-messages').append('<div class="chat-message sent">' +
+                                response.message.message + '</div>');
+                            $('#chat-messages').scrollTop($('#chat-messages')[0].scrollHeight);
+                            $('#message').val('');
+                        } else {
+                            alert("Failed to send message. Please try again later.");
+                        }
                     },
                     error: function(xhr, status, error) {
                         console.error(error);
                     }
                 });
             });
+
+            setInterval(fetchMessages, 2000);
         });
     </script>
 </body>
