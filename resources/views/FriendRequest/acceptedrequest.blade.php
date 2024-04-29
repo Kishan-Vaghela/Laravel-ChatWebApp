@@ -23,17 +23,20 @@
                     <tr>
                         <th scope="col">Friend Name</th>
                         <th scope="col">Action</th>
+                        <th scope="col">Unread</th>
                     </tr>
                 </thead>
                 <tbody>
-              
-                        
-                  
                     @foreach ($acceptedFriendRequest as $request)
                         <tr>
                             <td>{{ $request->receiver_email }}</td>
                             <td>
-                                <button class="btn btn-success chat-btn" data-receiver="{{ $request->receiver_email }}">Chat</button>
+                                <button class="btn btn-success chat-btn"
+                                    data-receiver="{{ $request->receiver_email }}">Chat</button>
+                            </td>
+                            
+                            <td>
+                                {{ $request->unread_messages_count }}
                             </td>
                         </tr>
                     @endforeach

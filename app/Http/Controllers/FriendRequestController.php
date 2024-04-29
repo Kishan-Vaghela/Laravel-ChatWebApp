@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Models\Message;
 use App\Models\FriendRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -104,15 +105,27 @@ class FriendRequestController extends Controller
 
 
     public function DisplayAcceptedFriend(Request $request)
-    {   
-        Auth::user()->email;
-        
-
-        $acceptedFriendRequest = FriendRequest::where('status', '=', 'accepted')
+{
+    $acceptedFriendRequest = FriendRequest::where('status', 'accepted')
+        ->where('receiver_email', '!=', Auth::user()->email)
         ->get();
-        // dd($acceptedFriendRequest);
-        return view('FriendRequest.acceptedrequest', compact('acceptedFriendRequest'));
+
+    foreach ($acceptedFriendRequest as $request) {
+        $unreadMessagesCount = Message::where('receiver_email', Auth::user()->email)
+            ->where('sender_email', $request->receiver_email)
+            ->where('status', 'unread')
+            ->count();
+
+        $request->unread_messages_count = $unreadMessagesCount;
     }
+
+    return view('FriendRequest.acceptedrequest', compact('acceptedFriendRequest'));
+}
+
+    
+  
+
+
 
 
 }
