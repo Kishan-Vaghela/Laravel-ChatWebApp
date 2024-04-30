@@ -15,14 +15,13 @@ class FriendRequestController extends Controller
     public function DisplayFriend()
     {
         $existingRequests = FriendRequest::where('sender_email', Auth::user()->email)->pluck('receiver_email')->toArray();
-
+        // dd($existingRequests);
 
         $exitisingfriends = User::where('id', '!=', Auth::user()->id)->get();
 
         // dd($exitisingfriends);
-        return view("FriendRequest.friendlist", compact("exitisingfriends", "existingRequests"));
+        return view("FriendRequest.friendlist", compact("existingRequests","exitisingfriends"));
     }
-
 
     public function SearchFriend(Request $request)
     {
@@ -32,17 +31,22 @@ class FriendRequestController extends Controller
     }
 
     public function SendRequest(Request $request)
-    {
+    {   
+    
 
         $request->validate([
             'receiver_email' => 'required|email|exists:users,email',
         ]);
         $senderEmail = Auth::user()->email;
+        // dd($senderEmail);
         $receiverEmail = $request->receiver_email;
+        
+        
 
         $existingRequest = FriendRequest::where('sender_email', $senderEmail)
             ->where('receiver_email', $receiverEmail)
             ->exists();
+        
 
         if ($existingRequest) {
             return response()->json(['error' => 'Request already sent'], 422);
@@ -105,27 +109,25 @@ class FriendRequestController extends Controller
 
 
     public function DisplayAcceptedFriend(Request $request)
-{
-    $acceptedFriendRequest = FriendRequest::where('status', 'accepted')
-        ->where('receiver_email', '!=', Auth::user()->email)
-        ->get();
+    {
+        $acceptedFriendRequest = FriendRequest::where('status', 'accepted')
+            ->where('receiver_email', '!=', Auth::user()->email)
+            ->get();
 
-    foreach ($acceptedFriendRequest as $request) {
-        $unreadMessagesCount = Message::where('receiver_email', Auth::user()->email)
-            ->where('sender_email', $request->receiver_email)
-            ->where('status', 'unread')
-            ->count();
+        foreach ($acceptedFriendRequest as $request) {
+            $unreadMessagesCount = Message::where('receiver_email', Auth::user()->email)
+                ->where('sender_email', $request->receiver_email)
+                ->where('status', 'unread')
+                ->count();
 
-        $request->unread_messages_count = $unreadMessagesCount;
+            $request->unread_messages_count = $unreadMessagesCount;
+        }
+
+        return view('FriendRequest.acceptedrequest', compact('acceptedFriendRequest'));
     }
 
-    return view('FriendRequest.acceptedrequest', compact('acceptedFriendRequest'));
-}
 
     
-  
-
-
 
 
 }
