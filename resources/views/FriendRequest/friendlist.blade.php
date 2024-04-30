@@ -58,7 +58,7 @@
                             <td>{{ $friend->email }}</td>
                             <td>
 
-                                @if ($friend->sentFriendRequests->isEmpty())
+                                @if (array_search($friend->email, array_column( $exitisingRequest, 'receiver_email' )) === false)
                                     <input type="hidden" name="receiver_email" value="{{ $friend->email }}">
                                     <button type="button" class="btn btn-success"
                                         onclick="sendFriendRequest('{{ $friend->email }}', this)">Send Request</button>
