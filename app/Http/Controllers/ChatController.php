@@ -35,6 +35,14 @@ class ChatController extends Controller
             ->where('receiver_email', Auth::user()->email)
             ->orderBy('created_at', 'asc')
             ->get();
+        
+            Message::where('receiver_email', Auth::user()->email)
+            ->where('sender_email', $receiverEmail)
+            ->update(
+                [
+                    'status' => 'read'
+                ]
+            );
 
 
         // dd($messages);
