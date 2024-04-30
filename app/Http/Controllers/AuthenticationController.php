@@ -62,6 +62,8 @@ class AuthenticationController extends Controller
             'password' => 'required',
         ]);
 
+
+        
         $remember = $request->has('remember');
 
         if (Auth::attempt($request->only('email', 'password'), $remember)) {

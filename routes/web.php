@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AdminController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthenticationController;
 use App\Http\Controllers\ChatController;
@@ -66,6 +67,14 @@ Route::get('/chat', [ChatController::class, 'index']) ->name('chat');
 
 Route::post('/send-message', [ChatController::class, 'sendMessage'])->name('send.message');
 Route::post('/fetch-messages', [ChatController::class, 'FetchMessage'])->name('fetch.messages');
+
+
+
+
+Route::middleware('auth.admin')->group(function(){
+
+    Route::get('/admin-dashboard',[AdminController::class,'index'])->name('admin-dashboard');
+});
 
 
 
