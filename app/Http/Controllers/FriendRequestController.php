@@ -14,12 +14,11 @@ class FriendRequestController extends Controller
     //
     public function DisplayFriend()
     {
-        // dd(Auth::user()->email);
-        // $existingRequests = FriendRequest::where('sender_email', Auth::user()->email)->pluck('receiver_email')->toArray();
-        // dd($existingRequests);
+      
         $exitisingRequest = FriendRequest::where('sender_email', Auth::user()->email)->get('receiver_email')->toArray();
-// dd($exitisingRequest);
-        $exitisingfriends = User::where('id', '!=', Auth::user()->id)->get();
+        $exitisingfriends = User::where('id', '!=', Auth::user()->id)
+        ->where('role','!=','admin')
+        ->get();        
 
         // dd($exitisingfriends);
         return view("FriendRequest.friendlist", compact("exitisingRequest","exitisingfriends"));
