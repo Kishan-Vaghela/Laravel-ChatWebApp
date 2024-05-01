@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
@@ -32,15 +31,12 @@ class AuthenticationController extends Controller
             'role' => 'user',
         ]);
 
-
         $userinfo = Userinfo::create([
             'name' => $request->name,
             'email' => $request->email,
             'address' => $request->address,
             'phone_number' => $request->phone_number,
         ]);
-
-        //    dd($userinfo);
 
         return redirect('/login')->with('success', 'Registration successful! Please login.');
     }
@@ -51,12 +47,7 @@ class AuthenticationController extends Controller
         return view('auth.login');
     }
 
-    /**
-     * Handle a login request to the application.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Http\Response
-     */
+    // Handle login request
     public function login(Request $request)
     {
         $request->validate([
@@ -64,48 +55,41 @@ class AuthenticationController extends Controller
             'password' => 'required',
         ]);
 
- 
-        $remember = $request->has('remember');
+        $credentials = $request->only('email', 'password');
+        $remember = $request->filled('remember');
 
-        if (Auth::attempt($request->only('email', 'password'), $remember)) {
-            $request->session()->regenerate();
-            return redirect()->intended('/dashboard');
+        if (Auth::attempt($credentials, $remember)) {
+            if (Auth::user()->status === 'active') {
+                $request->session()->regenerate();
+                return redirect()->intended('/dashboard');
+            } else {
+                Auth::logout();
+                return back()->withErrors(['email' => 'Your account is inactive.']);
+            }
         }
 
-        return back()->withErrors([
-            'email' => 'The provided credentials do not match our records.',
-        ]);
+        return back()->withErrors(['email' => 'The provided credentials do not match our records.']);
     }
 
-    /**
-     * Log the user out of the application.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\RedirectResponse
-     */
+    // Logout user
     public function logout(Request $request)
     {
         Auth::logout();
-
         $request->session()->invalidate();
-
         $request->session()->regenerateToken();
-
         return redirect('/');
     }
 
-    public function EditProfileForm()
+    // Show edit profile form
+    public function editProfileForm()
     {
         $loggedin = Userinfo::where('email', Auth::user()->email)->first();
-        // dd($loggedin);
         return view('user.edit_profile', compact('loggedin'));
-
     }
 
-    public function EditProfile(Request $request)
+    // Update user profile
+    public function editProfile(Request $request)
     {
-
-        
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255',
@@ -120,7 +104,7 @@ class AuthenticationController extends Controller
             'address' => $request->address,
             'phone_number' => $request->phone_number,
         ]);
-    
+
         return redirect('/dashboard')->with('success', 'Profile updated successfully!');
     }
 }
