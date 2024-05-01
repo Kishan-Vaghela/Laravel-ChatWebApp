@@ -36,7 +36,7 @@
             <div class="form-group form-check">
                 <input type="checkbox" class="form-check-input" id="toggle-address" name="toggle-address"
                     {{ $user->status === 'active' ? 'checked' : '' }}>
-                <label class="form-check-label" for="toggle-address">Active</label>
+                <label class="form-check-label" for="toggle-address">Inactive</label>
             </div>
             <br>
             <button type="submit" class="btn btn-primary">Edit Profile</button>

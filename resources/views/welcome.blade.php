@@ -9,7 +9,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body {
-            background-image: url('luxury-background.jpg');
+            
             background-size: cover;
             color: #fff;
             font-family: 'Arial', sans-serif;
@@ -17,9 +17,10 @@
         }
 
         .container {
+            align-content: center
             max-width: 800px;
-            margin: 0 auto;
-            text-align: center;
+            margin: 10% auto;
+            text-align:center;
             padding: 40px;
             background-color: rgba(0, 0, 0, 0.7);
             border-radius: 10px;
