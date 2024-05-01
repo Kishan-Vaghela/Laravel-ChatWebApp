@@ -14,7 +14,8 @@ class Userinfo extends Model
         'email',
         'address',
         'phone_number',
-        'password'
+        'password',
+    
     ];
 
     public function user(){

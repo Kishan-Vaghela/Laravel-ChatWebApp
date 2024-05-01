@@ -50,22 +50,29 @@ class AdminController extends Controller
         return view('admin.editprofile', compact('user'));
     }
 
-    public function EditProfile(request $request)
+    public function EditProfile(Request $request)
     {
-       $request->validate([
-        'name' => 'required|string|max:255',
-        'email' => 'required|email|max:255',
-        'address' => 'required|string|max:255',
-        'phone_number' => 'required|string|max:10',
-       ]);
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|max:255',
+            'address' => 'required|string|max:255',
+            'phone_number' => 'required|string|max:10',
+        ]);
 
-       $user = Userinfo::where('email', $request->email)->first();
-       $user->update([
-        'name' => $request->name,
-        'email' => $request->email,
-        'address' => $request->address,
-        'phone_number' => $request->phone_number,
-       ]);
-       return redirect('/admin-dashboard')->with('success', 'Profile updated successfully!');
+        $status = $request->has('toggle-address') ? 'active' : 'inactive';
+
+      
+        User::where('email', $request->email)->update(['status' => $status]);
+
+        
+        $user = Userinfo::where('email', $request->email)->first();
+        $user->update([
+            'name' => $request->name,
+            'email' => $request->email,
+            'address' => $request->address,
+            'phone_number' => $request->phone_number,
+        ]);
+
+        return redirect('/admin-dashboard')->with('success', 'Profile updated successfully!');
     }
 }
