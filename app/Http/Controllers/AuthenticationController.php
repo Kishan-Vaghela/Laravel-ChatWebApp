@@ -29,7 +29,9 @@ class AuthenticationController extends Controller
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
+            'role' => 'user',
         ]);
+
 
         $userinfo = Userinfo::create([
             'name' => $request->name,
@@ -62,8 +64,7 @@ class AuthenticationController extends Controller
             'password' => 'required',
         ]);
 
-
-        
+ 
         $remember = $request->has('remember');
 
         if (Auth::attempt($request->only('email', 'password'), $remember)) {
