@@ -21,6 +21,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'role'
     ];
 
     /**
@@ -70,6 +71,10 @@ class User extends Authenticatable
     {
         return $this->hasMany(Message::class, 'receiver_email', 'email');
     }
+    public function userinfo()
+{
+    return $this->hasOne(Userinfo::class, 'email');
+}
 
 
 }

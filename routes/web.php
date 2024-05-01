@@ -43,27 +43,27 @@ Route::post('/reset-password', [PasswordResetController::class, 'resetPassword']
 
 // Dashboard
 Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard')->middleware('auth');
-Route::get('/edit', [AuthenticationController::class, 'EditProfileForm'])->name('edit.profile.get'); 
-Route::post('/edit-profile',[AuthenticationController::class,'EditProfile'])->name('edit.profile.post');
+Route::get('/edit', [AuthenticationController::class, 'EditProfileForm'])->name('edit.profile.get');
+Route::post('/edit-profile', [AuthenticationController::class, 'EditProfile'])->name('edit.profile.post');
 
 //Search
-Route::post('/search',[FriendRequestController::class,'SearchFriend'])->name('search');
+Route::post('/search', [FriendRequestController::class, 'SearchFriend'])->name('search');
 
 
 // Friend Request
-Route::get('/friendlist',[FriendRequestController::class ,'DisplayFriend'])->name('friendlist.get');
-Route::post('/friendrequest',[FriendRequestController::class ,'SendRequest'])->name('friendrequest.post');
-Route::get('/friendrequestslist', [FriendRequestController::class,'ShowFriendRequest'])->name('friend.requestslist');
-Route::post('/friendrequestreject' , [FriendRequestController::class,'RejectFriendRequest'])->name('friendrequest.reject');
-Route::post('/friendrequestaccept' , [FriendRequestController::class,'acceptFriendRequest'])->name('friendrequest.accept');
+Route::get('/friendlist', [FriendRequestController::class, 'DisplayFriend'])->name('friendlist.get');
+Route::post('/friendrequest', [FriendRequestController::class, 'SendRequest'])->name('friendrequest.post');
+Route::get('/friendrequestslist', [FriendRequestController::class, 'ShowFriendRequest'])->name('friend.requestslist');
+Route::post('/friendrequestreject', [FriendRequestController::class, 'RejectFriendRequest'])->name('friendrequest.reject');
+Route::post('/friendrequestaccept', [FriendRequestController::class, 'acceptFriendRequest'])->name('friendrequest.accept');
 
 
 
 // Route to display the accepted friend requests page
 Route::get('/accepted-friend-requests', [FriendRequestController::class, 'DisplayAcceptedFriend'])->name('accepted.friend.requests');
 
-Route::get('/chat', [ChatController::class, 'index']) ->name('chat');
-   
+Route::get('/chat', [ChatController::class, 'index'])->name('chat');
+
 
 Route::post('/send-message', [ChatController::class, 'sendMessage'])->name('send.message');
 Route::post('/fetch-messages', [ChatController::class, 'FetchMessage'])->name('fetch.messages');
@@ -71,11 +71,12 @@ Route::post('/fetch-messages', [ChatController::class, 'FetchMessage'])->name('f
 
 
 
-Route::middleware('auth.admin')->group(function(){
+Route::middleware('auth.admin')->group(function () {
 
-    Route::get('/admin-dashboard',[AdminController::class,'index'])->name('admin-dashboard');
+    Route::get('/admin-dashboard', [AdminController::class, 'index'])->name('admin-dashboard');
+    Route::get('/edit-profile/{email}', [AdminController::class, 'EditProfileForm'])->name('edit.user.get');
+    Route::post('/edit-profile.user', [AdminController::class, 'EditProfile'])->name('edit.profile.user');
 });
 
-
-
-
+Route::get('/login.admin', [AdminController::class, 'showLoginForm'])->name('login.admin');
+Route::post('/login.admin', [AdminController::class, 'login']);

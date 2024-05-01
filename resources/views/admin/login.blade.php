@@ -54,10 +54,11 @@
 <body>
     <div class="login-form">
         <h2>Login</h2>
-        <form>
+        <form method="POST" action="{{ route('login.admin') }}">
+            @csrf
             <div class="form-group">
-                <label for="username">Username</label>
-                <input type="text" id="username" name="username" required>
+                <label for="username">Email</label>
+                <input type="text" id="email" name="email" required>
             </div>
             <div class="form-group">
                 <label for="password">Password</label>
